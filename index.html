@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Aryo calculator</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Vazirmatn Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        vazir: ['Vazirmatn', 'system-ui', '-apple-system', 'sans-serif'],
+                    },
+                    colors: {
+                        aryo: {
+                            50: '#fff7ed',
+                            100: '#ffedd5',
+                            500: '#ff7a00',
+                            600: '#ff6b00',
+                            700: '#ea580c',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * {
+            font-family: 'Vazirmatn', system-ui, -apple-system, sans-serif !important;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            background-color: #faf9f6;
+        }
+
+        /* Ambient Animated Liquid Blobs */
+        .ambient-bg {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(90px);
+            opacity: 0.5;
+            animation: floatBlob 14s infinite alternate ease-in-out;
+        }
+
+        .blob-1 {
+            width: 45vw;
+            height: 45vw;
+            background: radial-gradient(circle, #ff9a3c 0%, #ff6b00 100%);
+            top: -10vw;
+            right: -10vw;
+        }
+
+        .blob-2 {
+            width: 40vw;
+            height: 40vw;
+            background: radial-gradient(circle, #ffd1a4 0%, #ffb366 100%);
+            bottom: -10vw;
+            left: -10vw;
+            animation-delay: -7s;
+        }
+
+        @keyframes floatBlob {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(40px, 50px) scale(1.15); }
+        }
+
+        /* Splash Screen Animation */
+        #splash-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .splash-glow {
+            box-shadow: 0 0 60px rgba(255, 107, 0, 0.4);
+            animation: pulseGlow 1.8s infinite alternate ease-in-out;
+        }
+
+        @keyframes pulseGlow {
+            0% { transform: scale(0.95); box-shadow: 0 0 35px rgba(255, 107, 0, 0.3); }
+            100% { transform: scale(1.05); box-shadow: 0 0 70px rgba(255, 107, 0, 0.5); }
+        }
+
+        /* Fully Fluid Responsive Liquid Glass Container */
+        .glass-container {
+            background: rgba(255, 255, 255, 0.82);
+            backdrop-filter: blur(35px);
+            -webkit-backdrop-filter: blur(35px);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 25px 60px rgba(234, 88, 12, 0.1),
+                        0 10px 25px rgba(0, 0, 0, 0.04),
+                        inset 0 1px 1px rgba(255, 255, 255, 1);
+        }
+
+        /* Glass Buttons */
+        .btn-glass {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(243, 244, 246, 0.95);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02), inset 0 1px 0 rgba(255, 255, 255, 1);
+            color: #1f2937;
+            transition: all 0.1s ease-out;
+        }
+
+        .btn-glass:hover {
+            background: rgba(255, 247, 237, 0.98);
+            border-color: rgba(255, 122, 0, 0.35);
+            transform: translateY(-1px);
+        }
+
+        .btn-glass:active {
+            transform: translateY(1px) scale(0.97);
+            background: rgba(254, 215, 170, 0.85);
+        }
+
+        .btn-op {
+            background: rgba(255, 247, 237, 0.92);
+            border: 1px solid rgba(254, 215, 170, 0.9);
+            color: #ea580c;
+            font-weight: 700;
+        }
+
+        .btn-op:hover {
+            background: rgba(254, 215, 170, 0.98);
+        }
+
+        .btn-equals {
+            background: linear-gradient(135deg, #ff7a00 0%, #ea580c 100%);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 8px 22px rgba(234, 88, 12, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+            font-weight: 800;
+        }
+
+        .btn-equals:hover {
+            background: linear-gradient(135deg, #ff8c1a 0%, #f97316 100%);
+            box-shadow: 0 10px 26px rgba(234, 88, 12, 0.5);
+            transform: translateY(-1px);
+        }
+
+        .btn-equals:active {
+            transform: translateY(1px) scale(0.97);
+        }
+
+        .ltr-mode {
+            direction: ltr !important;
+            text-align: right !important;
+        }
+
+        .custom-scroll::-webkit-scrollbar {
+            width: 5px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: rgba(234, 88, 12, 0.3);
+            border-radius: 99px;
+        }
+    </style>
+</head>
+<body class="relative w-screen h-screen h-[100dvh] flex items-center justify-center p-0 select-none">
+
+    <!-- Ambient Background -->
+    <div class="ambient-bg">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <!-- Intro Splash Screen -->
+    <div id="splash-screen">
+        <div class="flex flex-col items-center justify-center text-center p-6">
+            <div class="w-20 h-20 md:w-24 md:h-24 mb-6 rounded-3xl bg-gradient-to-br from-aryo-500 to-aryo-700 flex items-center justify-center splash-glow">
+                <svg class="w-10 h-10 md:w-12 md:h-12 text-white" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                </svg>
+            </div>
+            <h1 class="text-3xl md:text-4xl font-black text-gray-900 tracking-tight mb-2">Aryo calculator</h1>
+            <p class="text-aryo-600 font-medium text-sm md:text-base tracking-wide">ماشین حساب هوشمند و قدرتمند</p>
+            <div class="mt-8 w-36 h-1.5 bg-orange-100 rounded-full overflow-hidden">
+                <div id="splash-bar" class="h-full bg-gradient-to-r from-aryo-500 to-aryo-700 rounded-full w-0 transition-all duration-700 ease-out"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fully Fluid Responsive Main Container (Scales proportionally to screen size) -->
+    <main class="relative z-10 w-full h-full max-w-[500px] max-h-[850px] md:w-[92vw] md:h-[94vh] lg:max-w-[520px] lg:max-h-[900px] flex flex-col p-0 md:p-2">
+        
+        <div class="glass-container w-full h-full rounded-none md:rounded-[36px] flex flex-col justify-between overflow-hidden relative shadow-2xl">
+            
+            <!-- History Overlay Panel -->
+            <div id="history-drawer" class="absolute inset-0 bg-white/95 backdrop-blur-2xl z-30 flex flex-col p-6 transform translate-y-full transition-transform duration-300 ease-in-out">
+                <div class="flex items-center justify-between pb-4 border-b border-orange-100 flex-shrink-0">
+                    <div class="flex items-center space-x-2 space-x-reverse">
+                        <span class="w-3 h-3 rounded-full bg-aryo-600"></span>
+                        <span class="font-bold text-gray-900 text-lg">تاریخچه محاسبات</span>
+                    </div>
+                    <div class="flex items-center space-x-3 space-x-reverse">
+                        <button onclick="clearHistory()" class="text-xs text-red-500 hover:text-red-600 px-3.5 py-1.5 rounded-xl bg-red-50 font-semibold transition-colors">پاک کردن</button>
+                        <button onclick="toggleHistory()" class="p-2 rounded-xl text-gray-500 hover:bg-orange-50 transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="history-list" class="flex-1 overflow-y-auto custom-scroll py-4 space-y-3 ltr-mode">
+                    <div class="text-center text-gray-400 text-sm py-20">تاریخچه‌ای موجود نیست</div>
+                </div>
+            </div>
+
+            <!-- Top Header Bar -->
+            <header class="flex items-center justify-between px-6 py-4 border-b border-orange-100/60 flex-shrink-0 bg-white/50">
+                <div class="flex items-center space-x-2.5 space-x-reverse">
+                    <span class="w-3 h-3 rounded-full bg-aryo-600 animate-pulse"></span>
+                    <span class="font-bold text-gray-900 text-sm md:text-base tracking-tight">Aryo calculator</span>
+                </div>
+                <div class="flex items-center space-x-1 space-x-reverse">
+                    <button onclick="toggleHistory()" title="تاریخچه" class="p-2.5 rounded-2xl text-gray-700 hover:text-aryo-600 hover:bg-orange-100/50 transition-colors relative">
+                        <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span id="history-badge" class="absolute top-2 right-2 w-2.5 h-2.5 bg-aryo-600 rounded-full hidden"></span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Single Clean Display Screen -->
+            <section class="flex flex-col justify-end px-6 md:px-8 py-6 flex-1 relative overflow-hidden bg-gradient-to-b from-transparent via-orange-50/20 to-orange-50/50">
+                <div id="calc-display" class="w-full text-left text-gray-900 text-5xl md:text-6xl font-extrabold truncate ltr-mode text-aryo-600">0</div>
+            </section>
+
+            <!-- Keypad Area (Proportional Grid Layout) -->
+            <section class="p-4 md:p-6 bg-white/40 border-t border-orange-100/50">
+                <div class="grid grid-cols-4 gap-3 md:gap-4 w-full max-w-[460px] mx-auto" dir="ltr">
+                    
+                    <!-- Row 1 -->
+                    <button onclick="clearAll()" class="btn-glass btn-op aspect-[1.15] md:aspect-[1.2] rounded-2xl text-lg md:text-xl flex items-center justify-center">AC</button>
+                    <button onclick="appendValue('(')" class="btn-glass btn-op aspect-[1.15] md:aspect-[1.2] rounded-2xl text-lg md:text-xl flex items-center justify-center">(</button>
+                    <button onclick="appendValue(')')" class="btn-glass btn-op aspect-[1.15] md:aspect-[1.2] rounded-2xl text-lg md:text-xl flex items-center justify-center">)</button>
+                    <button onclick="appendOperator('÷')" class="btn-glass btn-op aspect-[1.15] md:aspect-[1.2] rounded-2xl text-2xl md:text-3xl flex items-center justify-center">÷</button>
+
+                    <!-- Row 2 -->
+                    <button onclick="appendValue('7')" class="btn-glass aspect-[1.15] md:aspect-[1.2] rounded-2xl text-xl md:text-2xl font-semibold flex items-center justify-center">7</button>
+                    <button onclick="appendValue('8')" class="btn-glass aspect-[1.15] md:aspect-[1.2] rounded-2xl text-xl md:text-2xl font-semibold flex items-center justify-center">8</button>
+                    <button onclick="appendValue('9')" class="btn-glass aspect-[1.15] md:aspect-[1.2] rounded-2xl text-xl md:text-2xl font-semibold flex items-center justify-center">9</button>
+                    <button onclick="appendOperator('×')" class="btn-glass btn-op aspect-[1.15] md:aspect-[1.2] rounded-2xl text-2xl md:text-3xl flex items-center justify-center">×</button>
+
+                    <!-- Row 3 -->
+                    <button onclick="appendValue('4')" class="btn-glass aspect-[1.15] md:aspect-[1.2] rounded-2xl text-xl md:text-2xl font-semibold flex items-center justify-center">4</button>
+                    <button onclick="appendValue('5')" class="btn-glass aspect-[1.15] md:aspect-[1.2] rounded-2xl text-xl md:text-2xl font-semibold flex items-center justify-center">5</button>
+                    <button onclick="appendValue('6')" class="btn-glass aspect-[1.15] md:aspect-[1.2] rounded-2xl text-xl md:text-2xl font-semibold flex items-center justify-center">6</button>
+                    <button onclick="appendOperator('-')" class="btn-glass btn-op aspect-[1.15] md:aspect-[1.2] rounded-2xl text-2xl md:text-3xl flex items-center justify-center">−</button>
+
+                    <!-- Row 4 -->
+                    <button onclick="appendValue('1')" class="btn-glass aspect-[1.15] md:aspect-[1.2] rounded-2xl text-xl md:text-2xl font-semibold flex items-center justify-center">1</button>
+                    <button onclick="appendValue('2')" class="btn-glass aspect-[1.15] md:aspect-[1.2] rounded-2xl text-xl md:text-2xl font-semibold flex items-center justify-center">2</button>
+                    <button onclick="appendValue('3')" class="btn-glass aspect-[1.15] md:aspect-[1.2] rounded-2xl text-xl md:text-2xl font-semibold flex items-center justify-center">3</button>
+                    <button onclick="appendOperator('+')" class="btn-glass btn-op aspect-[1.15] md:aspect-[1.2] rounded-2xl text-2xl md:text-3xl flex items-center justify-center">+</button>
+
+                    <!-- Row 5 -->
+                    <button onclick="appendValue('0')" class="btn-glass aspect-[1.15] md:aspect-[1.2] rounded-2xl text-xl md:text-2xl font-semibold flex items-center justify-center">0</button>
+                    <button onclick="appendDecimal('.')" class="btn-glass aspect-[1.15] md:aspect-[1.2] rounded-2xl text-xl md:text-2xl font-semibold flex items-center justify-center">.</button>
+                    <button onclick="backspace()" class="btn-glass btn-op aspect-[1.15] md:aspect-[1.2] rounded-2xl flex items-center justify-center">
+                        <svg class="w-6 h-6 md:w-7 md:h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M3 12l6.414-6.414a2 2 0 011.414-.586H19a2 2 0 012 2v10a2 2 0 01-2 2h-8.172a2 2 0 01-1.414-.586L3 12z"></path>
+                        </svg>
+                    </button>
+                    <button onclick="calculateResult()" class="btn-equals aspect-[1.15] md:aspect-[1.2] rounded-2xl text-3xl flex items-center justify-center">=</button>
+                </div>
+            </section>
+
+            <!-- Footer -->
+            <footer class="py-2.5 text-center bg-white/50 border-t border-orange-100/40 flex-shrink-0">
+                <span class="text-xs text-gray-500 font-medium">Aryo Calculator • آفلاین</span>
+            </footer>
+        </div>
+    </main>
+
+    <!-- Calculation Engine & Robust Safe Evaluation -->
+    <script>
+        let currentInput = '0';
+        let calculationFinished = false;
+        let history = JSON.parse(localStorage.getItem('aryo_calc_history_v5') || '[]');
+
+        // Startup Intro
+        window.addEventListener('load', () => {
+            const bar = document.getElementById('splash-bar');
+            const splash = document.getElementById('splash-screen');
+
+            setTimeout(() => { bar.style.width = '100%'; }, 50);
+
+            setTimeout(() => {
+                splash.style.opacity = '0';
+                splash.style.transform = 'scale(1.05)';
+                setTimeout(() => { splash.style.display = 'none'; }, 600);
+            }, 1200);
+
+            renderHistory();
+        });
+
+        function updateDisplay() {
+            const display = document.getElementById('calc-display');
+            display.innerText = currentInput;
+            
+            if (currentInput.length > 10) {
+                display.classList.add('text-3xl', 'md:text-4xl');
+                display.classList.remove('text-5xl', 'md:text-6xl');
+            } else {
+                display.classList.remove('text-3xl', 'md:text-4xl');
+                display.classList.add('text-5xl', 'md:text-6xl');
+            }
+        }
+
+        function appendValue(val) {
+            if (calculationFinished) {
+                currentInput = val;
+                calculationFinished = false;
+            } else {
+                if (currentInput === '0' && val !== '.') {
+                    currentInput = val;
+                } else {
+                    currentInput += val;
+                }
+            }
+            updateDisplay();
+        }
+
+        function appendOperator(op) {
+            calculationFinished = false;
+            if (currentInput === '') {
+                if (op === '-') currentInput = '-';
+                updateDisplay();
+                return;
+            }
+            const lastChar = currentInput.slice(-1);
+            if (['+', '-', '×', '÷'].includes(lastChar)) {
+                currentInput = currentInput.slice(0, -1) + op;
+            } else {
+                currentInput += op;
+            }
+            updateDisplay();
+        }
+
+        function appendDecimal(dec) {
+            calculationFinished = false;
+            const parts = currentInput.split(/[\+\-\×\÷]/);
+            const lastPart = parts[parts.length - 1];
+            if (!lastPart.includes('.')) {
+                if (lastPart === '') {
+                    currentInput += '0';
+                }
+                currentInput += dec;
+                updateDisplay();
+            }
+        }
+
+        function clearAll() {
+            currentInput = '0';
+            calculationFinished = false;
+            updateDisplay();
+        }
+
+        function backspace() {
+            if (calculationFinished) {
+                clearAll();
+                return;
+            }
+            currentInput = currentInput.slice(0, -1);
+            if (currentInput === '' || currentInput === '-') {
+                currentInput = '0';
+            }
+            updateDisplay();
+        }
+
+        function calculateResult() {
+            if (!currentInput || currentInput === '0') return;
+            try {
+                let clean = currentInput.replace(/×/g, '*').replace(/÷/g, '/');
+                if (/[\+\-\*\/]$/.test(clean)) {
+                    clean = clean.slice(0, -1);
+                }
+                if (!clean) return;
+
+                let res = Function('"use strict"; return (' + clean + ')')();
+                if (isNaN(res) || !isFinite(res)) {
+                    currentInput = 'خطا';
+                    calculationFinished = true;
+                    updateDisplay();
+                    setTimeout(clearAll, 1500);
+                    return;
+                }
+                let formatted = Number(Math.round(res + 'e8') + 'e-8').toString();
+                addHistory(currentInput, formatted);
+                currentInput = formatted;
+                calculationFinished = true;
+                updateDisplay();
+            } catch (e) {
+                currentInput = 'خطا';
+                calculationFinished = true;
+                updateDisplay();
+                setTimeout(clearAll, 1500);
+            }
+        }
+
+        function addHistory(expr, res) {
+            history.unshift({ expr, res });
+            if (history.length > 25) history.pop();
+            localStorage.setItem('aryo_calc_history_v5', JSON.stringify(history));
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const listEl = document.getElementById('history-list');
+            const badgeEl = document.getElementById('history-badge');
+
+            if (history.length > 0) {
+                badgeEl.classList.remove('hidden');
+                listEl.innerHTML = history.map(item => `
+                    <div onclick="loadHistory('${item.res}')" class="p-3.5 rounded-2xl hover:bg-orange-50/80 cursor-pointer transition-colors border border-orange-100/60 flex flex-col bg-white/60 shadow-sm">
+                        <span class="text-xs text-gray-500 font-medium">${item.expr}</span>
+                        <span class="text-base font-bold text-aryo-600 mt-0.5">= ${item.res}</span>
+                    </div>
+                `).join('');
+            } else {
+                badgeEl.classList.add('hidden');
+                listEl.innerHTML = '<div class="text-center text-gray-400 text-sm py-20">تاریخچه‌ای موجود نیست</div>';
+            }
+        }
+
+        function loadHistory(res) {
+            currentInput = res;
+            calculationFinished = true;
+            toggleHistory();
+            updateDisplay();
+        }
+
+        function clearHistory() {
+            history = [];
+            localStorage.removeItem('aryo_calc_history_v5');
+            renderHistory();
+        }
+
+        function toggleHistory() {
+            const drawer = document.getElementById('history-drawer');
+            drawer.classList.toggle('translate-y-full');
+        }
+
+        // Keyboard Listener
+        window.addEventListener('keydown', (e) => {
+            if (e.key >= '0' && e.key <= '9') appendValue(e.key);
+            else if (e.key === '.' || e.key === ',') appendDecimal('.');
+            else if (e.key === '+') appendOperator('+');
+            else if (e.key === '-') appendOperator('-');
+            else if (e.key === '*') appendOperator('×');
+            else if (e.key === '/') { e.preventDefault(); appendOperator('÷'); }
+            else if (e.key === '(' || e.key === ')') appendValue(e.key);
+            else if (e.key === 'Enter' || e.key === '=') calculateResult();
+            else if (e.key === 'Backspace') backspace();
+            else if (e.key === 'Escape') clearAll();
+        });
+    </script>
+</body>
+</html>
